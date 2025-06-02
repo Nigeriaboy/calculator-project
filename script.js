@@ -40,6 +40,15 @@ function operate (operator, a, b) {
     }
 }
 
+function clear(){
+    firstOperand = '';
+    secondOperand = '';
+    operator = undefined;
+    result = '';
+    expressionDisplay.textContent = '';
+    resultDisplay.textContent = '';
+}
+
 const  expressionDisplay = document.querySelector('#expression-display');
 const  resultDisplay = document.querySelector('#result-display');
 const backspaceBtn = document.querySelector('#backspace-btn');
@@ -82,20 +91,20 @@ btnSection.forEach((button) => {
         }
         else if (operatorsArray.includes(buttonText) && (firstOperand !== '' && secondOperand === '')) {
             if (operator !== undefined) {
-                expressionDisplay.textContent = expressionDisplay.textContent.slice(0, -2); // remove the previous operator
+                expressionDisplay.textContent = expressionDisplay.textContent.slice(0, -2); // remove the previous operator if present
             }
-
             operator = buttonText;
             expressionDisplay.textContent += ` ${operator} `;
         }
-
-     if (buttonText === '=' && firstOperand !== '' && secondOperand !== '' && operator !== undefined) {
+        else if (buttonText === '=' && firstOperand !== '' && secondOperand !== '' && operator !== undefined) {
             // reset the operands and operator for the next calculation
             firstOperand = result; // store the result as the first operand for further calculations
             secondOperand = '';
             operator = undefined;
             expressionDisplay.textContent = `${firstOperand}`;
-
+        }
+        else if (buttonText === 'C'){
+            clear();
         }
 
     });
