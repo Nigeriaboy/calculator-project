@@ -107,7 +107,34 @@ btnSection.forEach((button) => {
             clear();
         }
 
-    });
+    })
 })
 
+// This section handles the backspace button click event
+backspaceBtn.addEventListener('click', () => {
+        expressionDisplay.textContent = (expressionDisplay.textContent).slice(0,-1);
+
+        if (secondOperand){
+            secondOperand = secondOperand.slice(0, -1);
+            // if the second Operand is empty the result Display should be blank
+            if (secondOperand === ''){
+                resultDisplay.textContent = ''; 
+            }
+            else{
+                result = operate(operator, Number(firstOperand), Number(secondOperand));
+                resultDisplay.textContent = result;
+            }
+
+        }
+        else if (!secondOperand && operator !== undefined){
+            expressionDisplay.textContent = (expressionDisplay.textContent).slice(0,-1); // Removes the extra space before the operator
+            operator = undefined;
+            resultDisplay.textContent = '';
+        }
+        else{
+            firstOperand = firstOperand.slice(0, -1);
+        }
+
+    }
+)
 
