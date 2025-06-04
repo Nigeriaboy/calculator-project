@@ -49,6 +49,11 @@ function clear(){
     resultDisplay.textContent = '';
 }
 
+// Check if their is dot already in the value of the argument variable
+function checkDot(value) {
+    return value.includes('.');
+}
+
 const  expressionDisplay = document.querySelector('#expression-display');
 const  resultDisplay = document.querySelector('#result-display');
 const backspaceBtn = document.querySelector('#backspace-btn');
@@ -69,16 +74,37 @@ btnSection.forEach((button) => {
     button.addEventListener('click', () => {
         const buttonText = button.textContent;
 
-        /** check if the button clicked is a dot so that the variable can be assigned 0.
+        // check if the button clicked is a dot
         if (buttonText === '.'){
-            if (firstOperand === undefined){
-                firstOperand = 0.;
+            if (firstOperand === ''){
+                firstOperand = '0.';
                 expressionDisplay.textContent += firstOperand;
             }
-        } */
+            else if (secondOperand === '' && operator !== undefined){
+                secondOperand = '0.';
+                expressionDisplay.textContent += secondOperand;
+            }
+
+            else if (firstOperand && !secondOperand){
+                // Checks if first operands includes dot
+                if (!checkDot(firstOperand)){
+                    firstOperand += '.';
+                    expressionDisplay.textContent += '.';
+                }
+
+            }
+            else if (secondOperand){
+                // Checks if second operands includes dot
+                if (!checkDot(secondOperand)){
+                    secondOperand += '.';
+                    expressionDisplay.textContent += '.';
+                }
+                
+            }
+        } 
 
         
-        if (isNumber(buttonText) && operator === undefined){
+        else if (isNumber(buttonText) && operator === undefined){
             firstOperand += buttonText;
             expressionDisplay.textContent += buttonText;
         }
@@ -127,7 +153,7 @@ backspaceBtn.addEventListener('click', () => {
 
         }
         else if (!secondOperand && operator !== undefined){
-            expressionDisplay.textContent = (expressionDisplay.textContent).slice(0,-1); // Removes the extra space before the operator
+            expressionDisplay.textContent = (expressionDisplay.textContent).slice(0,-2); // Removes the extra space before the operator
             operator = undefined;
             resultDisplay.textContent = '';
         }

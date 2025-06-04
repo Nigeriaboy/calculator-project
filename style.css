@@ -83,6 +83,8 @@ body {
     cursor: pointer;
     background-color: rgb(40, 39, 39);
     transition: ease-in-out 0.2s;
+    outline: none;
+    box-shadow: none;
 }
 
 #btn-section button:hover:not(.operators) {
