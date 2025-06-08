@@ -158,9 +158,8 @@ backspaceBtn.addEventListener('click', () => {
             resultDisplay.textContent = '';
         }
         else{
-            firstOperand = firstOperand.slice(0, -1);
+            firstOperand = String(firstOperand).slice(0, -1); // Turned back to string so that the slice method works correctly
         }
-
     }
 )
 
