@@ -1,22 +1,3 @@
-function add (a, b) {
-    return toTenDecimalPlaces(a + b);    
-}
-
-function subtract (a, b) {
-    return toTenDecimalPlaces(a - b);    
-}
-
-function multiply (a, b) {
-    return toTenDecimalPlaces(a * b);    
-}
-
-function divide (numerator, denominator) {
-    if (denominator === 0) {
-        return "Cannot divide by zero";
-    }
-    return toTenDecimalPlaces(numerator / denominator);
-}
-
 function isNumber(value){
     let num = Number(value); // convert value to a number
     return !isNaN(num); // check if the value is a valid number
@@ -27,23 +8,15 @@ function toTenDecimalPlaces(value) {
 }
 
 // this function handles the operation/calculation based on the operator passed
-function operate (operator, a, b) {
-    switch (operator) {
-        case '+':
-            return add(a, b);
-        case '-':
-            return subtract(a, b);
-        case 'x':
-            return multiply(a, b);
-        case '/':
-            return divide(a, b);
-    }
+function operate (expression) {
+    let value = expression;
+
+    value = value.replace(/x/g, '*').replace(/%/g, '/100'); // replace 'x' with '*' and '%' with '/100'
+    return eval(value);
 }
 
 function clear(){
-    firstOperand = '';
-    secondOperand = '';
-    operator = undefined;
+    expressionArray = [];
     result = '';
     expressionDisplay.textContent = '';
     resultDisplay.textContent = '';
@@ -54,8 +27,8 @@ function checkDot(value) {
     return value.includes('.');
 }
 
-const  expressionDisplay = document.querySelector('#expression-display');
-const  resultDisplay = document.querySelector('#result-display');
+const expressionDisplay = document.querySelector('#expression-display');
+const resultDisplay = document.querySelector('#result-display');
 const backspaceBtn = document.querySelector('#backspace-btn');
 const btnSection = document.querySelectorAll('#btn-section button');
 
@@ -64,73 +37,72 @@ const operatorsArray = ['+', '-', 'x', '/'];
 expressionDisplay.textContent = '';
 resultDisplay.textContent = '';
 
-let firstOperand = '';
-let secondOperand = '';
-let operator = undefined;
+
 let result = '';
+let expressionArray = [];
 
 // This section handles each button click event
 btnSection.forEach((button) => {
     button.addEventListener('click', () => {
         const buttonText = button.textContent;
 
-        // check if the button clicked is a dot
-        if (buttonText === '.'){
-            if (firstOperand === ''){
-                firstOperand = '0.';
-                expressionDisplay.textContent += firstOperand;
-            }
-            else if (secondOperand === '' && operator !== undefined){
-                secondOperand = '0.';
-                expressionDisplay.textContent += secondOperand;
+        // Checks if the clicked button is an operator
+        if (operatorsArray.includes(buttonText) && expressionArray.length !== 0){
+            // Change the operator if the last element is an operator
+            if (operatorsArray.includes(expressionArray[expressionArray.length - 2])){
+                expressionArray = expressionArray.slice(0, -3);
+                expressionArray.push(' ');
+                expressionArray.push(buttonText);
+                expressionArray.push(' ');
+                expressionDisplay.textContent = expressionArray.join('');
             }
 
-            else if (firstOperand && !secondOperand){
-                // Checks if first operands includes dot
-                if (!checkDot(firstOperand)){
-                    firstOperand += '.';
-                    expressionDisplay.textContent += '.';
-                }
+            else{
+                expressionArray.push(' ');
+                expressionArray.push(buttonText);
+                expressionArray.push(' ');
+                expressionDisplay.textContent = expressionArray.join('');
+            }
+        }
 
-            }
-            else if (secondOperand){
-                // Checks if second operands includes dot
-                if (!checkDot(secondOperand)){
-                    secondOperand += '.';
-                    expressionDisplay.textContent += '.';
-                }
-                
-            }
-        } 
+        else if (isNumber(buttonText)) {
 
-        
-        else if (isNumber(buttonText) && operator === undefined){
-            firstOperand += buttonText;
-            expressionDisplay.textContent += buttonText;
-        }
-        else if ((firstOperand !== '' && operator !== undefined) && isNumber(buttonText)){
-            secondOperand += buttonText;
-            expressionDisplay.textContent += buttonText;
-            // display the direct result after the second operand is entered
-            result = operate(operator, Number(firstOperand), Number(secondOperand));
-            resultDisplay.textContent = result;
-        }
-        else if (operatorsArray.includes(buttonText) && (firstOperand !== '' && secondOperand === '')) {
-            if (operator !== undefined) {
-                expressionDisplay.textContent = expressionDisplay.textContent.slice(0, -2); // remove the previous operator if present
+            // Check if the last element is a %, so that a multiplication sign can precede the number
+            if (expressionArray[expressionArray.length - 1] === '%'){
+                expressionArray.push(` x ${buttonText}`);
+                expressionDisplay.textContent = expressionArray.join('')
+                result = operate(expressionArray.join(''));
+                resultDisplay.textContent = result;
             }
-            operator = buttonText;
-            expressionDisplay.textContent += ` ${operator} `;
+
+            else{
+                expressionArray.push(buttonText);
+                expressionDisplay.textContent = expressionArray.join('')
+                result = operate(expressionArray.join(''));
+                resultDisplay.textContent = result;
+            }
         }
-        else if (buttonText === '=' && firstOperand !== '' && secondOperand !== '' && operator !== undefined) {
-            // reset the operands and operator for the next calculation
-            firstOperand = result; // store the result as the first operand for further calculations
-            secondOperand = '';
-            operator = undefined;
-            expressionDisplay.textContent = `${firstOperand}`;
+
+        else if(buttonText === '%'){
+            // Disallow inputting multiple % consecutively
+            if (isNumber(expressionArray[expressionArray.length - 1])){
+                expressionArray.push(buttonText);
+                expressionDisplay.textContent = expressionArray.join('');
+                result = operate(expressionArray.join(''));
+                resultDisplay.textContent = result;
+            }
         }
+
         else if (buttonText === 'C'){
             clear();
+        }
+
+        else if (buttonText === '='){
+            expressionArray = [result];
+            result = '';
+            expressionDisplay.textContent = expressionArray.join('');
+            resultDisplay.textContent = result;
+            
         }
 
     })
@@ -138,27 +110,22 @@ btnSection.forEach((button) => {
 
 // This section handles the backspace button click event
 backspaceBtn.addEventListener('click', () => {
-        expressionDisplay.textContent = (expressionDisplay.textContent).slice(0,-1);
-
-        if (secondOperand){
-            secondOperand = secondOperand.slice(0, -1);
-            // if the second Operand is empty the result Display should be blank
-            if (secondOperand === ''){
-                resultDisplay.textContent = ''; 
-            }
-            else{
-                result = operate(operator, Number(firstOperand), Number(secondOperand));
-                resultDisplay.textContent = result;
-            }
-
-        }
-        else if (!secondOperand && operator !== undefined){
-            expressionDisplay.textContent = (expressionDisplay.textContent).slice(0,-2); // Removes the extra space before the operator
-            operator = undefined;
-            resultDisplay.textContent = '';
+        // Checks if the last element of the expressionArray is an empty space, if true then it's an operator that precedes it
+        if (expressionArray[expressionArray.length - 1] === ' '){
+            expressionArray = expressionArray.slice(0, -3); // Deletes the operator and the empty spaces around it
+            expressionDisplay.textContent = expressionArray.join('');
         }
         else{
-            firstOperand = String(firstOperand).slice(0, -1); // Turned back to string so that the slice method works correctly
+            expressionArray = expressionArray.slice(0,-1);
+            expressionDisplay.textContent = expressionArray.join('');
+        }
+
+        // If the expression array is empty or the last element is an operator, clear the result display
+        if (expressionArray.length === 0 || operatorsArray.includes(expressionArray[expressionArray.length - 1])) {
+            resultDisplay.textContent = '';
+        } else {
+            result = operate(expressionArray.join(''));
+            resultDisplay.textContent = result;
         }
     }
 )
