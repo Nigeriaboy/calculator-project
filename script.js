@@ -45,11 +45,12 @@ let expressionArray = [];
 btnSection.forEach((button) => {
     button.addEventListener('click', () => {
         const buttonText = button.textContent;
+        let expressionArrayLength = expressionArray.length;
 
         // Checks if the clicked button is an operator
-        if (operatorsArray.includes(buttonText) && expressionArray.length !== 0){
+        if (operatorsArray.includes(buttonText) && expressionArrayLength !== 0){
             // Change the operator if the last element is an operator
-            if (operatorsArray.includes(expressionArray[expressionArray.length - 2])){
+            if (operatorsArray.includes(expressionArray[expressionArrayLength - 2])){
                 expressionArray = expressionArray.slice(0, -3);
                 expressionArray.push(' ');
                 expressionArray.push(buttonText);
@@ -68,28 +69,31 @@ btnSection.forEach((button) => {
         else if (isNumber(buttonText)) {
 
             // Check if the last element is a %, so that a multiplication sign can precede the number
-            if (expressionArray[expressionArray.length - 1] === '%'){
-                expressionArray.push(` x ${buttonText}`);
+            if (expressionArray[expressionArrayLength - 1] === '%'){
+                expressionArray.push(' ')
+                expressionArray.push('x');
+                expressionArray.push(' ');
+                expressionArray.push(buttonText);
                 expressionDisplay.textContent = expressionArray.join('')
                 result = operate(expressionArray.join(''));
-                resultDisplay.textContent = result;
+                resultDisplay.textContent = toTenDecimalPlaces(result);
             }
 
             else{
                 expressionArray.push(buttonText);
                 expressionDisplay.textContent = expressionArray.join('')
                 result = operate(expressionArray.join(''));
-                resultDisplay.textContent = result;
+                resultDisplay.textContent = toTenDecimalPlaces(result);
             }
         }
 
         else if(buttonText === '%'){
             // Disallow inputting multiple % consecutively
-            if (isNumber(expressionArray[expressionArray.length - 1])){
+            if (isNumber(expressionArray[expressionArrayLength - 1])){
                 expressionArray.push(buttonText);
                 expressionDisplay.textContent = expressionArray.join('');
                 result = operate(expressionArray.join(''));
-                resultDisplay.textContent = result;
+                resultDisplay.textContent = toTenDecimalPlaces(result);
             }
         }
 
@@ -101,8 +105,42 @@ btnSection.forEach((button) => {
             expressionArray = [result];
             result = '';
             expressionDisplay.textContent = expressionArray.join('');
-            resultDisplay.textContent = result;
+            resultDisplay.textContent = toTenDecimalPlaces(result);
             
+        }
+
+        else if (buttonText === '.'){
+            let len = expressionArrayLength;
+
+            let getLastOperand = () => {
+                let lastOperatorIndex = -1;
+
+                for (let i = len - 1; i >= 0; i--){
+                    if (operatorsArray.includes(expressionArray[i])){
+                        lastOperatorIndex = i;
+                        break;
+                    }
+                }
+
+                return expressionArray.slice(lastOperatorIndex + 1).join('');
+            };
+
+            const lastOperand = getLastOperand();
+
+            if (checkDot(lastOperand)){
+                // Already has a dot
+                console.log('There is a dot in the last operand.');
+
+                return;
+            }
+
+            // No dot present -add a "0" before dot if needed
+            if (len === 0 || operatorsArray.includes(expressionArray[len - 1])){
+                expressionArray.push(0);
+            }
+
+            expressionArray.push('.');
+            expressionDisplay.textContent = expressionArray.join('');
         }
 
     })
@@ -125,7 +163,7 @@ backspaceBtn.addEventListener('click', () => {
             resultDisplay.textContent = '';
         } else {
             result = operate(expressionArray.join(''));
-            resultDisplay.textContent = result;
+            resultDisplay.textContent = toTenDecimalPlaces(result);
         }
     }
 )
