@@ -12,7 +12,7 @@ function operate (expression) {
     let value = expression;
 
     value = value.replace(/x/g, '*').replace(/%/g, '/100'); // replace 'x' with '*' and '%' with '/100'
-    return eval(value);
+    return toTenDecimalPlaces(eval(value)); // evaluate the expression and return the result rounded to 10 decimal places
 }
 
 function clear(){
@@ -76,14 +76,14 @@ btnSection.forEach((button) => {
                 expressionArray.push(buttonText);
                 expressionDisplay.textContent = expressionArray.join('')
                 result = operate(expressionArray.join(''));
-                resultDisplay.textContent = toTenDecimalPlaces(result);
+                resultDisplay.textContent = result;
             }
 
             else{
                 expressionArray.push(buttonText);
                 expressionDisplay.textContent = expressionArray.join('')
                 result = operate(expressionArray.join(''));
-                resultDisplay.textContent = toTenDecimalPlaces(result);
+                resultDisplay.textContent = result;
             }
         }
 
@@ -93,7 +93,7 @@ btnSection.forEach((button) => {
                 expressionArray.push(buttonText);
                 expressionDisplay.textContent = expressionArray.join('');
                 result = operate(expressionArray.join(''));
-                resultDisplay.textContent = toTenDecimalPlaces(result);
+                resultDisplay.textContent = result;
             }
         }
 
@@ -102,10 +102,10 @@ btnSection.forEach((button) => {
         }
 
         else if (buttonText === '='){
-            expressionArray = [result];
+            expressionArray = String(result).split(''); // Convert the result to an array of characters
             result = '';
             expressionDisplay.textContent = expressionArray.join('');
-            resultDisplay.textContent = toTenDecimalPlaces(result);
+            resultDisplay.textContent = result;
             
         }
 
@@ -127,15 +127,8 @@ btnSection.forEach((button) => {
 
             const lastOperand = getLastOperand();
 
-            if (checkDot(lastOperand)){
-                // Already has a dot
-                console.log('There is a dot in the last operand.');
-
-                return;
-            }
-
             // No dot present -add a "0" before dot if needed
-            if (len === 0 || operatorsArray.includes(expressionArray[len - 1])){
+            if (len === 0 || operatorsArray.includes(expressionArray[len - 2])){
                 expressionArray.push(0);
             }
 
@@ -163,7 +156,7 @@ backspaceBtn.addEventListener('click', () => {
             resultDisplay.textContent = '';
         } else {
             result = operate(expressionArray.join(''));
-            resultDisplay.textContent = toTenDecimalPlaces(result);
+            resultDisplay.textContent = result;
         }
     }
 )
