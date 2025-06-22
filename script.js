@@ -1,6 +1,12 @@
 function isNumber(value){
-    let num = Number(value); // convert value to a number
-    return !isNaN(num); // check if the value is a valid number
+    if (value === ' '){
+        return false;
+    }
+    else{
+        let num = Number(value); // convert value to a number
+        return !isNaN(num); // check if the value is a valid number
+    }
+
 }
 
 function toTenDecimalPlaces(value) {
@@ -136,6 +142,52 @@ btnSection.forEach((button) => {
             expressionDisplay.textContent = expressionArray.join('');
         }
 
+        
+        else if (buttonText === '( )'){
+            // function to check how many open and close bracket are in the expression
+            let openingBracket;
+            let closingBracket;
+
+            let numberOfEachBracket = () => {
+                openingBracket = 0;
+                closingBracket = 0;
+                expressionArray.forEach(e => {
+                    if ( e === '('){
+                        openingBracket++;
+                    }
+                    else if (e === ')'){
+                        closingBracket++;
+                    }
+                })
+            }
+
+            numberOfEachBracket();
+
+            if (expressionArrayLength !== 0 && (isNumber(expressionArray[expressionArrayLength - 1]) || expressionArray[expressionArrayLength - 1] === '%') && openingBracket > closingBracket){
+                expressionArray.push(')');
+            }
+            else if (openingBracket > closingBracket && expressionArray[expressionArrayLength - 1] === ')'){
+                expressionArray.push(')')
+            }
+            else if ((expressionArrayLength !== 0 && (expressionArray[expressionArrayLength - 1] === ')' || isNumber(expressionArray[expressionArrayLength - 1])) && (openingBracket === closingBracket || openingBracket > closingBracket)) || (openingBracket === closingBracket && expressionArray[expressionArrayLength - 1] === '%')){
+                expressionArray.push(' ')
+                expressionArray.push('*');
+                expressionArray.push(' ')
+                expressionArray.push('(');
+
+            }
+
+            else{
+                expressionArray.push('(');
+            }
+
+            expressionDisplay.textContent = expressionArray.join('');
+            result = operate(expressionArray.join(''))
+            resultDisplay.textContent = result;
+
+
+        }
+
     })
 })
 
@@ -160,4 +212,3 @@ backspaceBtn.addEventListener('click', () => {
         }
     }
 )
-
