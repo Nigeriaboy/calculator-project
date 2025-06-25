@@ -46,23 +46,27 @@ resultDisplay.textContent = '';
 
 let result = '';
 let expressionArray = [];
+let len = expressionArray.length;
 
 // This section handles each button click event
 btnSection.forEach((button) => {
     button.addEventListener('click', () => {
         const buttonText = button.textContent;
-        let expressionArrayLength = expressionArray.length;
+        len = expressionArray.length;
 
         // Checks if the clicked button is an operator
-        if (operatorsArray.includes(buttonText) && expressionArrayLength !== 0){
+        if (operatorsArray.includes(buttonText) && len !== 0){
             // Change the operator if the last element is an operator
-            if (operatorsArray.includes(expressionArray[expressionArrayLength - 2])){
+            if (operatorsArray.includes(expressionArray[len - 2])){
                 expressionArray = expressionArray.slice(0, -3);
                 expressionArray.push(' ');
                 expressionArray.push(buttonText);
                 expressionArray.push(' ');
                 expressionDisplay.textContent = expressionArray.join('');
             }
+
+            // don't add division or multiplication sign when the last element is an opening bracket
+            else if ((buttonText === '/' || buttonText === 'x') && expressionArray[len - 1] === '(') return ;
 
             else{
                 expressionArray.push(' ');
@@ -75,7 +79,7 @@ btnSection.forEach((button) => {
         else if (isNumber(buttonText)) {
 
             // Check if the last element is a %, so that a multiplication sign can precede the number
-            if (expressionArray[expressionArrayLength - 1] === '%'){
+            if (expressionArray[len - 1] === '%'){
                 expressionArray.push(' ')
                 expressionArray.push('x');
                 expressionArray.push(' ');
@@ -95,7 +99,7 @@ btnSection.forEach((button) => {
 
         else if(buttonText === '%'){
             // Disallow inputting multiple % consecutively
-            if (isNumber(expressionArray[expressionArrayLength - 1])){
+            if (isNumber(expressionArray[len - 1])){
                 expressionArray.push(buttonText);
                 expressionDisplay.textContent = expressionArray.join('');
                 result = operate(expressionArray.join(''));
@@ -116,7 +120,6 @@ btnSection.forEach((button) => {
         }
 
         else if (buttonText === '.'){
-            let len = expressionArrayLength;
 
             let getLastOperand = () => {
                 let lastOperatorIndex = -1;
@@ -132,6 +135,11 @@ btnSection.forEach((button) => {
             };
 
             const lastOperand = getLastOperand();
+
+            // Don't put dot if dot already exist in the lastOperand
+            if (checkDot(lastOperand)){
+                return ;
+            }
 
             // No dot present -add a "0" before dot if needed
             if (len === 0 || operatorsArray.includes(expressionArray[len - 2])){
@@ -163,15 +171,15 @@ btnSection.forEach((button) => {
 
             numberOfEachBracket();
 
-            if (expressionArrayLength !== 0 && (isNumber(expressionArray[expressionArrayLength - 1]) || expressionArray[expressionArrayLength - 1] === '%') && openingBracket > closingBracket){
+            if (len !== 0 && (isNumber(expressionArray[len - 1]) || expressionArray[len - 1] === '%') && openingBracket > closingBracket){
                 expressionArray.push(')');
             }
-            else if (openingBracket > closingBracket && expressionArray[expressionArrayLength - 1] === ')'){
+            else if (openingBracket > closingBracket && expressionArray[len - 1] === ')'){
                 expressionArray.push(')')
             }
-            else if ((expressionArrayLength !== 0 && (expressionArray[expressionArrayLength - 1] === ')' || isNumber(expressionArray[expressionArrayLength - 1])) && (openingBracket === closingBracket || openingBracket > closingBracket)) || (openingBracket === closingBracket && expressionArray[expressionArrayLength - 1] === '%')){
+            else if ((len !== 0 && (expressionArray[len - 1] === ')' || isNumber(expressionArray[len - 1])) && (openingBracket === closingBracket || openingBracket > closingBracket)) || (openingBracket === closingBracket && expressionArray[len - 1] === '%')){
                 expressionArray.push(' ')
-                expressionArray.push('*');
+                expressionArray.push('x');
                 expressionArray.push(' ')
                 expressionArray.push('(');
 
@@ -188,15 +196,81 @@ btnSection.forEach((button) => {
 
         }
 
+        else if (buttonText === '+/-'){
+                // if expression array is empty
+            if (expressionArray.length === 0){
+                expressionArray.push('(')
+                expressionArray.push(' ');
+                expressionArray.push('-');
+                expressionArray.push(' ');
+                expressionDisplay.textContent = expressionArray.join('');
+                return;
+            }
+
+            for (let i = len - 1; i >= 0; i--){
+                // if the last element is a closing bracket, open another negative bracket
+                if (expressionArray[i] === ')'){
+                    expressionArray.push(' ');
+                    expressionArray.push('x');
+                    expressionArray.push(' ');
+                    expressionArray.push('(');
+                    expressionArray.push(' ');
+                    expressionArray.push('-');
+                    expressionArray.push(' ');
+                    expressionDisplay.textContent = expressionArray.join('');
+                    break;
+                }
+
+                // if number is negative, change it to positive
+                else if (expressionArray[i] === '-' && expressionArray[i - 2] === '('){
+                    expressionArray.splice(i - 2, 3);
+                    expressionDisplay.textContent = expressionArray.join('');
+                    break;
+                }
+
+                else if (operatorsArray.includes(expressionArray[i]) && expressionArray[i - 2] !== '('){
+                    expressionArray.splice(i + 3, 0,'(');
+                    expressionArray.splice(i + 4, 0, ' ');
+                    expressionArray.splice(i + 5, 0, '-');
+                    expressionArray.splice(i + 6, 0, ' ');
+                    expressionDisplay.textContent = expressionArray.join('');
+                    break;
+                }
+
+                else if (operatorsArray.includes(expressionArray[i])){
+                    expressionArray.push('(')
+                    expressionArray.push(' ');
+                    expressionArray.push('-');
+                    expressionArray.push(' ');
+                    expressionDisplay.textContent = expressionArray.join('');
+                    break;
+                }
+
+                // if their is no operator in the expression, add it this way
+                else if (i === 0){
+                    expressionArray.unshift(' ')
+                    expressionArray.unshift('-');
+                    expressionArray.unshift(' ');
+                    expressionArray.unshift('(');
+                    expressionDisplay.textContent = expressionArray.join('');
+                    break;
+                }
+
+
+            }
+        }
+
     })
 })
 
 // This section handles the backspace button click event
 backspaceBtn.addEventListener('click', () => {
+        len = expressionArray.length;
         // Checks if the last element of the expressionArray is an empty space, if true then it's an operator that precedes it
-        if (expressionArray[expressionArray.length - 1] === ' '){
+        if (expressionArray[len - 1] === ' '){
             expressionArray = expressionArray.slice(0, -3); // Deletes the operator and the empty spaces around it
             expressionDisplay.textContent = expressionArray.join('');
+            resultDisplay.textContent = '';
         }
         else{
             expressionArray = expressionArray.slice(0,-1);
@@ -204,11 +278,13 @@ backspaceBtn.addEventListener('click', () => {
         }
 
         // If the expression array is empty or the last element is an operator, clear the result display
-        if (expressionArray.length === 0 || operatorsArray.includes(expressionArray[expressionArray.length - 1])) {
+        if (len === 0 || operatorsArray.includes(expressionArray[len - 2])) {
             resultDisplay.textContent = '';
         } else {
             result = operate(expressionArray.join(''));
             resultDisplay.textContent = result;
         }
+
+        console.log(`lenght = ${len}`)
     }
 )
