@@ -221,6 +221,15 @@ btnSection.forEach((button) => {
                     break;
                 }
 
+                else if (expressionArray[i] === '('){
+                     expressionArray.push('(');
+                    expressionArray.push(' ');
+                    expressionArray.push('-');
+                    expressionArray.push(' ');
+                    expressionDisplay.textContent = expressionArray.join('');
+                    break;
+                }
+
                 // if number is negative, change it to positive
                 else if (expressionArray[i] === '-' && expressionArray[i - 2] === '('){
                     expressionArray.splice(i - 2, 3);
