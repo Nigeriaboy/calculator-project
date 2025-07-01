@@ -33,6 +33,35 @@ function checkDot(value) {
     return value.includes('.');
 }
 
+function storeCalculation(expression, result){
+    const expAndResult = {
+        expression,
+        result
+    }
+
+    let previousCalculation = localStorage.getItem("calculation");
+    if (previousCalculation){
+        previousCalculation = JSON.parse(previousCalculation);
+        previousCalculation.push(expAndResult);
+    }
+    // if previouscalculation don't contain any calculations, this will store it.
+    else{
+        previousCalculation = [expAndResult];
+    }
+
+    // Store the calculation inside local storage
+    localStorage.setItem("calculation",JSON.stringify(previousCalculation));
+}
+
+// Clear the calculation history from the local storage
+function clearHIstory(){
+    localStorage.removeItem('calculation');
+}
+
+const clearHistory = document.querySelector('#clear-history');
+const clearHistoryBtn = document.querySelector('#clear-history-btn');
+const historyBtn = document.querySelector('#history-btn');
+const historyBox = document.querySelector('#history-section');
 const expressionDisplay = document.querySelector('#expression-display');
 const resultDisplay = document.querySelector('#result-display');
 const backspaceBtn = document.querySelector('#backspace-btn');
@@ -63,6 +92,8 @@ btnSection.forEach((button) => {
                 expressionArray.push(buttonText);
                 expressionArray.push(' ');
                 expressionDisplay.textContent = expressionArray.join('');
+                result = '';
+                resultDisplay.textContent = result;
             }
 
             // don't add division or multiplication sign when the last element is an opening bracket
@@ -73,6 +104,8 @@ btnSection.forEach((button) => {
                 expressionArray.push(buttonText);
                 expressionArray.push(' ');
                 expressionDisplay.textContent = expressionArray.join('');
+                result = '';
+                resultDisplay.textContent = result;
             }
         }
 
@@ -112,11 +145,13 @@ btnSection.forEach((button) => {
         }
 
         else if (buttonText === '='){
-            expressionArray = String(result).split(''); // Convert the result to an array of characters
-            result = '';
-            expressionDisplay.textContent = expressionArray.join('');
-            resultDisplay.textContent = result;
-            
+            if (result){
+                storeCalculation(expressionArray.join(''), result); // Store the calculation in local storage
+                expressionArray = String(result).split(''); // Convert the result to an array of characters
+                result = '';
+                expressionDisplay.textContent = expressionArray.join('');
+                resultDisplay.textContent = result;
+            }
         }
 
         else if (buttonText === '.'){
@@ -272,28 +307,78 @@ btnSection.forEach((button) => {
     })
 })
 
-// This section handles the backspace button click event
-backspaceBtn.addEventListener('click', () => {
+    // This section handles the backspace button click event
+backspaceBtn.addEventListener('click', () => 
+    {
         len = expressionArray.length;
         // Checks if the last element of the expressionArray is an empty space, if true then it's an operator that precedes it
         if (expressionArray[len - 1] === ' '){
             expressionArray = expressionArray.slice(0, -3); // Deletes the operator and the empty spaces around it
             expressionDisplay.textContent = expressionArray.join('');
-            resultDisplay.textContent = '';
+            result = '';
+            resultDisplay.textContent = result;
+            len = expressionArray.length; // Update the length after slicing
         }
         else{
             expressionArray = expressionArray.slice(0,-1);
             expressionDisplay.textContent = expressionArray.join('');
+            len = expressionArray.length; // Update the length after slicing
         }
 
         // If the expression array is empty or the last element is an operator, clear the result display
-        if (len === 0 || operatorsArray.includes(expressionArray[len - 2])) {
+        if (len === 0 || operatorsArray.includes(expressionArray[len - 2])){
+            result = '';
             resultDisplay.textContent = '';
         } else {
             result = operate(expressionArray.join(''));
             resultDisplay.textContent = result;
         }
 
-        console.log(`lenght = ${len}`)
     }
+
 )
+
+// This section handles the history display
+historyBtn.addEventListener('click', () => {
+    // Display the calculation history section
+    if (historyBox.style.display === 'none'){
+        historyBox.style.display = 'block';
+        clearHistory.style.display = 'flex';
+        historyBox.innerHTML = ''; //clear the formal history and update it when the history button is reclicked
+        let calculation = localStorage.getItem('calculation');
+        if (calculation){
+            calculation = JSON.parse(calculation);
+            calculation.forEach((cal) => {
+                let exp = document.createElement('p');
+                let result = document.createElement('p');
+
+                exp.textContent = cal.expression;
+                result.textContent = `= ${cal.result}`;
+
+                // Give them class name
+                exp.classList.add('expression');
+                result.classList.add('result')
+
+                historyBox.appendChild(exp);
+                historyBox.appendChild(result);
+            })
+        }
+        // Don't show anything if the history is empty
+        else{
+            historyBox.style.display = 'none';
+            clearHistory.style.display = 'none';
+        }
+    }
+    else{
+        historyBox.style.display = 'none';
+        clearHistory.style.display = 'none';
+    }
+})
+
+// Clears the calculation history when the clear history button is clicked
+clearHistoryBtn.addEventListener('click', () => {
+    clearHIstory();
+    // Close the history display section
+    historyBox.style.display = 'none';
+    clearHistory.style.display = 'none';
+})
