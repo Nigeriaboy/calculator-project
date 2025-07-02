@@ -145,7 +145,8 @@ btnSection.forEach((button) => {
         }
 
         else if (buttonText === '='){
-            if (result){
+            if (result || result === 0) // I put this -> ( || result === 0), because when result equals to 0 it will negate the first condition.
+            { 
                 storeCalculation(expressionArray.join(''), result); // Store the calculation in local storage
                 expressionArray = String(result).split(''); // Convert the result to an array of characters
                 result = '';
