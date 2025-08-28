@@ -15,11 +15,11 @@ body {
     width: 300px;
     height: 500px;
     margin: 0 auto;
-    margin-top: 50px;
+    margin-top: 500px;
     margin-bottom: 50px;
     border: solid;
     background-color: black;
-    border: red 1px solid;
+    border: rgb(0, 0, 0) 1px solid;
 }
 
 #display-section {
@@ -56,6 +56,12 @@ body {
     padding: 5px;
     background-color: black;
     border: solid 1px;
+    transition: 0.3s ease-in-out;
+}
+
+#special-btn-section #history-btn:hover{
+    background-color: rgb(0, 255, 0);
+    color: black;
 }
 
 #btn-section {
@@ -68,13 +74,14 @@ body {
     padding-top: 0;
     grid-template-columns: repeat(4, 1fr);
     grid-gap: 5px;
+    position: relative;
 }
 
 #btn-section #clear-btn {
     color: red;
 }
 
-#btn-section button {
+#btn-section button:not(#clear-history-btn) {
     width: 50px;
     height: 50px;
     font-size: 25px;
@@ -87,7 +94,7 @@ body {
     box-shadow: none;
 }
 
-#btn-section button:hover:not(.operators) {
+#btn-section button:hover:not(.operators):not(#clear-history-btn) {
     background-color: rgb(75, 72, 72);
 }
 
@@ -96,13 +103,159 @@ body {
     transition: ease-in-out 0.2s;
 }
 
-#btn-section .operators:hover {
+#btn-section .operators:hover:not(#clear-history-btn) {
     background-color: rgb(0, 255, 0);
     color: black;
 }
 
-
-
 svg{
     background-color: transparent;
+}
+
+#history-section {
+    width: 200px;
+    height: 230px;
+    position: absolute;
+    background-color: #000000;
+    border-right: solid 1px grey;
+    display: none;
+    overflow: auto;
+}
+
+#history-section p {
+    text-align: end;
+    margin-right: 10px;
+}
+
+#history-section .result{
+    border-bottom: 1px solid grey;
+    color: rgb(0, 255, 0)
+}
+
+#clear-history {
+    width: 200px;
+    height: 70px;
+    position: absolute;
+    bottom: 0;
+    background-color: black;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#clear-history #clear-history-btn {
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 20px;
+    text-align: center;
+    padding: 5px 15px 5px 15px;
+    background-color: rgb(0, 255, 0);
+    color: black;
+    border: none;
+}
+
+@media only screen and (max-width: 600px){
+    body{
+        background-color: #000000;
+    }
+
+    #container{
+        width: 100%;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        padding-bottom: 5px;
+        height: 100vh;
+    }
+
+    #display-section {
+        height: 20%;
+        margin-top: 50px;
+        margin-bottom: 30px;
+        text-align: end;
+        margin-right: 20px;
+    }
+
+    #display-section #expression-display {
+        font-size: 25px;
+    }
+
+    #display-section #result-display {
+        font-size: 20px;
+    }
+
+    #special-btn-section {
+        width: 95%;
+        height: 10%;
+        margin: 0 auto;
+        margin-bottom: 15px;
+        padding-bottom: 20px;
+
+    }
+
+    #special-btn-section #history-btn{
+        font-size: 17px;
+        width: 80px;
+        height: 50px;
+    }
+
+    #special-btn-section svg{
+        width: 30px;
+        height: 40px;
+    }
+
+    #btn-section {
+        margin: 0 auto;
+        width: 100%;
+        height: 55%;
+    }
+
+    #btn-section button:not(#clear-history-btn) {
+        width: 100%;
+        height: 100%;
+        font-size: 40px;
+        margin: auto;
+        border-radius: 10%;
+    }
+
+    #history-section {
+        width: 73%;
+        height: 85%;
+        position: absolute;
+        background-color: #000000;
+        border-right: solid 1px grey;
+        display: none;
+        overflow: auto;
+    }
+
+    #history-section p {
+        text-align: end;
+        margin-right: 10px;
+    }
+
+    #history-section .result{
+        border-bottom: 1px solid grey;
+        color: rgb(0, 255, 0)
+    }
+
+    #clear-history {
+        height: 15%;
+        width: 73%;
+        position: absolute;
+        bottom: 0;
+        background-color: black;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #clear-history #clear-history-btn {
+        font-size: 15px;
+        font-weight: bold;
+        border-radius: 20px;
+        text-align: center;
+        padding: 5px 15px 5px 15px;
+        background-color: rgb(0, 255, 0);
+        color: black;
+        border: none;
+    }
 }
